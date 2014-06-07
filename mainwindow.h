@@ -29,10 +29,10 @@ private slots:
 
     void on_btn_Save_clicked();
 
-    void on_btn_Open_clicked();
-
 private:
     Ui::MainWindow *ui;
+
+    QString dataPath;
 
     std::map<std::string, Item> itemList;
 };

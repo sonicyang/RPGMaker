@@ -17,6 +17,37 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+
+    dataPath = QFileDialog::getExistingDirectory(this, tr("Open Game"),
+                                                 "./",
+                                                 QFileDialog::ShowDirsOnly
+                                                 | QFileDialog::DontResolveSymlinks);
+    if(dataPath == ""){
+        QMessageBox::critical(this, "Error", "You Must Open a Game manifest file!");
+        throw(122);
+    }
+
+    QString fileName = dataPath + "/data/items/itemlist.lst";
+
+    Json::Reader read;
+    Json::Value root;
+    read.parse(get_file_contents(fileName.toStdString().c_str()), root);
+
+    for(int i = 0; i < root["Count"].asInt(); i++){
+        Json::Value root2;
+        read.parse(get_file_contents((dataPath.toStdString() + "/" + root["Items"][i].asString()).c_str()), root2);
+        itemList.insert(itemList.begin(), std::pair<std::string, Item>(root2["Name"].asString(), Item(root2["Name"].asString())));
+        ui->lst_Items->addItem(QString::fromStdString(root2["Name"].asString()));
+        itemList[root2["Name"].asString()].setDescription(root2["Description"].asString());
+        itemList[root2["Name"].asString()].setComsumable(root2["Comsumable"].asBool());
+        itemList[root2["Name"].asString()].setType(root2["Type"].asInt());
+        itemList[root2["Name"].asString()].setHPVarient(root2["HPv"].asInt());
+        itemList[root2["Name"].asString()].setMPVarient(root2["MPv"].asInt());
+        itemList[root2["Name"].asString()].setATKVarient(root2["ATKv"].asInt());
+        itemList[root2["Name"].asString()].setDEFVarient(root2["DEFv"].asInt());
+    }
+    ui->lst_Items->setCurrentRow(0);
 }
 
 MainWindow::~MainWindow()
@@ -157,62 +188,35 @@ void MainWindow::on_btn_Save_clicked()
 {
     ui->lst_Items->setCurrentRow(0);
 
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Open File"), "", tr("Files (*.lst)"));
+    QString fileName = dataPath + "/data/items/itemlist.lst";
 
-    if(fileName == "")
-        return;
-
+    Json::StyledWriter writer;
     Json::Value root;
     root["Count"] = itemList.size();
     int i = 0;
     for(auto it : itemList){
-        root["Items"][i]["Name"] = it.second.getName();
-        root["Items"][i]["Description"] = it.second.getDescription();
-        root["Items"][i]["Comsumable"] = it.second.isComsumable();
-        root["Items"][i]["Type"] = it.second.getType();
-        root["Items"][i]["HPv"] = it.second.getHPVarient();
-        root["Items"][i]["MPv"] = it.second.getMPVarient();
-        root["Items"][i]["ATKv"] = it.second.getATKVarient();
-        root["Items"][i]["DEFv"] = it.second.getDEFVarient();
+        root["Items"][i] = "data/items/" + it.second.getName() + ".item";
+
+        Json::Value root2;
+        root2["Name"] = it.second.getName();
+        root2["Description"] = it.second.getDescription();
+        root2["Comsumable"] = it.second.isComsumable();
+        root2["Type"] = it.second.getType();
+        root2["HPv"] = it.second.getHPVarient();
+        root2["MPv"] = it.second.getMPVarient();
+        root2["ATKv"] = it.second.getATKVarient();
+        root2["DEFv"] = it.second.getDEFVarient();
+
+        std::ofstream file(dataPath.toStdString() + "/data/items/" + it.second.getName() + ".item");
+        file << writer.write(root2);
+        file.close();
+
         i++;
     }
 
     std::ofstream file(fileName.toStdString());
-    Json::StyledWriter writer;
     file << writer.write(root);
     file.close();
-
     return;
 }
 
-
-void MainWindow::on_btn_Open_clicked()
-{
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), "", tr("Files (*.lst)"));
-
-    if(fileName == "")
-        return;
-
-    std::string data = get_file_contents(fileName.toStdString().c_str());
-
-    Json::Reader read;
-    Json::Value root;
-    read.parse(data, root);
-
-    for(int i = 0; i < root["Count"].asInt(); i++){
-        itemList.insert(itemList.begin(), std::pair<std::string, Item>(root["Items"][i]["Name"].asString(), Item(root["Items"][i]["Name"].asString())));
-        ui->lst_Items->addItem(QString::fromStdString(root["Items"][i]["Name"].asString()));
-
-
-        itemList[root["Items"][i]["Name"].asString()].setDescription(root["Items"][i]["Description"].asString());
-        itemList[root["Items"][i]["Name"].asString()].setComsumable(root["Items"][i]["Comsumable"].asBool());
-        itemList[root["Items"][i]["Name"].asString()].setType(root["Items"][i]["Type"].asInt());
-        itemList[root["Items"][i]["Name"].asString()].setHPVarient(root["Items"][i]["HPv"].asInt());
-        itemList[root["Items"][i]["Name"].asString()].setMPVarient(root["Items"][i]["MPv"].asInt());
-        itemList[root["Items"][i]["Name"].asString()].setATKVarient(root["Items"][i]["ATKv"].asInt());
-        itemList[root["Items"][i]["Name"].asString()].setDEFVarient(root["Items"][i]["DEFv"].asInt());
-    }
-    ui->lst_Items->setCurrentRow(0);
-
-    return;
-}
