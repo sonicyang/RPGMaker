@@ -63,6 +63,7 @@
     </property>
     <addaction name="actionItem"/>
     <addaction name="actionSkills"/>
+    <addaction name="actionMonster"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuItem"/>
@@ -80,6 +81,11 @@
   <action name="actionSkills">
    <property name="text">
     <string>Skills</string>
+   </property>
+  </action>
+  <action name="actionMonster">
+   <property name="text">
+    <string>Monster</string>
    </property>
   </action>
  </widget>

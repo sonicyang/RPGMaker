@@ -85,6 +85,9 @@
     </item>
     <item row="5" column="1">
      <widget class="QSpinBox" name="num_ATKv">
+      <property name="minimum">
+       <number>-9999</number>
+      </property>
       <property name="maximum">
        <number>9999</number>
       </property>
@@ -109,6 +112,9 @@
     </item>
     <item row="3" column="1">
      <widget class="QSpinBox" name="num_HPv">
+      <property name="minimum">
+       <number>-9999</number>
+      </property>
       <property name="maximum">
        <number>9999</number>
       </property>
@@ -116,6 +122,9 @@
     </item>
     <item row="4" column="1">
      <widget class="QSpinBox" name="num_MPv">
+      <property name="minimum">
+       <number>-9999</number>
+      </property>
       <property name="maximum">
        <number>9999</number>
       </property>
@@ -123,6 +132,9 @@
     </item>
     <item row="6" column="1">
      <widget class="QSpinBox" name="num_DEFv">
+      <property name="minimum">
+       <number>-9999</number>
+      </property>
       <property name="maximum">
        <number>9999</number>
       </property>

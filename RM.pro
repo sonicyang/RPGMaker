@@ -24,7 +24,9 @@ SOURCES += main.cpp \
     src/utils.cpp \
     itemform.cpp \
     skillform.cpp \
-    src/skill.cpp
+    src/skill.cpp \
+    src/monster.cpp \
+    monsterform.cpp
 
 HEADERS  += \
     mainwindow.h \
@@ -55,9 +57,11 @@ HEADERS  += \
     include/utils.h \
     src/lib_json/json_batchallocator.h \
     itemform.h \
-    skillform.h
+    skillform.h \
+    monsterform.h
 
 FORMS    += \
     mainwindow.ui \
     itemform.ui \
-    skillform.ui
+    skillform.ui \
+    monsterform.ui

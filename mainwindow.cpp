@@ -69,6 +69,22 @@ MainWindow::MainWindow(QWidget *parent) :
         skillList[root2["Name"].asString()].setfATKv(root2["fATKv"].asInt());
         skillList[root2["Name"].asString()].setfDEFv(root2["fDEFv"].asInt());
     }
+
+    fileName = dataPath + "/data/monsters/monsterlist.lst";
+    root.clear();
+    read.parse(get_file_contents(fileName.toStdString().c_str()), root);
+
+    for(int i = 0; i < root["Count"].asInt(); i++){
+        Json::Value root2;
+        read.parse(get_file_contents((dataPath.toStdString() + "/" + root["Path"][i].asString()).c_str()), root2);
+        monsterList.insert(monsterList.begin(), std::pair<std::string, Monster>(root2["Name"].asString(), Monster(root2["Name"].asString())));
+        monsterList[root2["Name"].asString()].setExp(root2["EXP"].asInt());
+        monsterList[root2["Name"].asString()].setHP(root2["HP"].asInt());
+        monsterList[root2["Name"].asString()].setMP(root2["MP"].asInt());
+        monsterList[root2["Name"].asString()].setAttack(root2["ATK"].asInt());
+        monsterList[root2["Name"].asString()].setDefense(root2["DEF"].asInt());
+        monsterList[root2["Name"].asString()].setImg(root2["Image"].asString());
+    }
 }
 
 MainWindow::~MainWindow()
@@ -119,7 +135,7 @@ void MainWindow::on_actionSave_triggered()
         Json::Value root2;
         root2["Name"] = it.second.getName();
         root2["Description"] = it.second.getDescription();
-        root2["MPC"] = (int)it.second.getMPC();
+        root2["MPC"] = it.second.getMPC();
         root2["eTarget"] = it.second.geteTarget();
         root2["eHPv"] = it.second.geteHPv();
         root2["eMPv"] = it.second.geteMPv();
@@ -141,6 +157,34 @@ void MainWindow::on_actionSave_triggered()
     std::ofstream file2(fileName.toStdString());
     file2 << writer.write(root);
     file2.close();
+
+    fileName = dataPath + "/data/monsters/monsterlist.lst";
+
+    root.clear();
+    root["Count"] = monsterList.size();
+    i = 0;
+    for(auto it : monsterList){
+        root["Path"][i] = "data/monsters/" + it.second.getName() + ".mst";
+
+        Json::Value root2;
+        root2["Name"] = it.second.getName();
+        root2["EXP"] = it.second.getExp();
+        root2["HP"] = it.second.getHP();
+        root2["MP"] = it.second.getMP();
+        root2["ATK"] = it.second.getAttack();
+        root2["DEF"] = it.second.getDefense();
+        root2["Image"] = it.second.getImg();
+
+        std::ofstream file(dataPath.toStdString() + "/data/monsters/" + it.second.getName() + ".mst");
+        file << writer.write(root2);
+        file.close();
+
+        i++;
+    }
+
+    std::ofstream file3(fileName.toStdString());
+    file3 << writer.write(root);
+    file3.close();
 
     return;
 }
@@ -165,4 +209,15 @@ void MainWindow::on_actionSkills_triggered()
     QMdiSubWindow* sub = ui->mdiArea->addSubWindow(sF);
     sub->show();
     sF->update();
+}
+
+void MainWindow::on_actionMonster_triggered()
+{
+    ui->mdiArea->removeSubWindow(mF);
+    delete mF;
+
+    mF = new monsterForm(monsterList);
+    QMdiSubWindow* sub = ui->mdiArea->addSubWindow(mF);
+    sub->show();
+    mF->update();
 }
