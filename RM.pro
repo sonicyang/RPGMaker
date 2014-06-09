@@ -21,7 +21,10 @@ SOURCES += main.cpp \
     src/lib_json/json_value.cpp \
     src/lib_json/json_writer.cpp \
     src/item.cpp \
-    src/utils.cpp
+    src/utils.cpp \
+    itemform.cpp \
+    skillform.cpp \
+    src/skill.cpp
 
 HEADERS  += \
     mainwindow.h \
@@ -50,7 +53,11 @@ HEADERS  += \
     include/skill.h \
     include/team.h \
     include/utils.h \
-    src/lib_json/json_batchallocator.h
+    src/lib_json/json_batchallocator.h \
+    itemform.h \
+    skillform.h
 
 FORMS    += \
-    mainwindow.ui
+    mainwindow.ui \
+    itemform.ui \
+    skillform.ui

@@ -4,6 +4,9 @@
 #include <QMainWindow>
 #include <QListWidgetItem>
 #include "item.h"
+#include "itemform.h"
+#include "skill.h"
+#include "skillform.h"
 
 namespace Ui {
 class MainWindow;
@@ -19,15 +22,11 @@ public:
 
 private slots:
 
-    void on_btn_Add_clicked();
+    void on_actionSave_triggered();
 
-    void on_btn_Del_clicked();
+    void on_actionItem_triggered();
 
-    void on_lst_Items_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
-
-    void on_txt_Description_textChanged();
-
-    void on_btn_Save_clicked();
+    void on_actionSkills_triggered();
 
 private:
     Ui::MainWindow *ui;
@@ -35,6 +34,10 @@ private:
     QString dataPath;
 
     std::map<std::string, Item> itemList;
+    std::map<std::string, Skill> skillList;
+
+    itemForm* iF = nullptr;
+    skillForm* sF = nullptr;
 };
 
 #endif // MAINWINDOW_H

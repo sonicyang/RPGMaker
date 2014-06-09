@@ -2,6 +2,7 @@
 #include <QMessageBox>
 #include <Qt>
 #include <QFileDialog>
+#include <QMdiSubWindow>
 
 #include <fstream>
 
@@ -38,7 +39,6 @@ MainWindow::MainWindow(QWidget *parent) :
         Json::Value root2;
         read.parse(get_file_contents((dataPath.toStdString() + "/" + root["Items"][i].asString()).c_str()), root2);
         itemList.insert(itemList.begin(), std::pair<std::string, Item>(root2["Name"].asString(), Item(root2["Name"].asString())));
-        ui->lst_Items->addItem(QString::fromStdString(root2["Name"].asString()));
         itemList[root2["Name"].asString()].setDescription(root2["Description"].asString());
         itemList[root2["Name"].asString()].setComsumable(root2["Comsumable"].asBool());
         itemList[root2["Name"].asString()].setType(root2["Type"].asInt());
@@ -47,7 +47,28 @@ MainWindow::MainWindow(QWidget *parent) :
         itemList[root2["Name"].asString()].setATKVarient(root2["ATKv"].asInt());
         itemList[root2["Name"].asString()].setDEFVarient(root2["DEFv"].asInt());
     }
-    ui->lst_Items->setCurrentRow(0);
+
+    fileName = dataPath + "/data/skills/skilllist.lst";
+    root.clear();
+    read.parse(get_file_contents(fileName.toStdString().c_str()), root);
+
+    for(int i = 0; i < root["Count"].asInt(); i++){
+        Json::Value root2;
+        read.parse(get_file_contents((dataPath.toStdString() + "/" + root["Skills"][i].asString()).c_str()), root2);
+        skillList.insert(skillList.begin(), std::pair<std::string, Skill>(root2["Name"].asString(), Skill(root2["Name"].asString())));
+        skillList[root2["Name"].asString()].setDescription(root2["Description"].asString());
+        skillList[root2["Name"].asString()].setMPC(root2["Comsumable"].asInt());
+        skillList[root2["Name"].asString()].seteTarget(root2["eTarget"].asInt());
+        skillList[root2["Name"].asString()].seteHPv(root2["eHPv"].asInt());
+        skillList[root2["Name"].asString()].seteMPv(root2["eMPv"].asInt());
+        skillList[root2["Name"].asString()].seteATKv(root2["eATKv"].asInt());
+        skillList[root2["Name"].asString()].seteDEFv(root2["eDEFv"].asInt());
+        skillList[root2["Name"].asString()].setfTarget(root2["fTarget"].asInt());
+        skillList[root2["Name"].asString()].setfHPv(root2["fHPv"].asInt());
+        skillList[root2["Name"].asString()].setfMPv(root2["fMPv"].asInt());
+        skillList[root2["Name"].asString()].setfATKv(root2["fATKv"].asInt());
+        skillList[root2["Name"].asString()].setfDEFv(root2["fDEFv"].asInt());
+    }
 }
 
 MainWindow::~MainWindow()
@@ -55,139 +76,8 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::on_btn_Add_clicked()
+void MainWindow::on_actionSave_triggered()
 {
-    QString newItemName = QInputDialog::getText(this, tr("Insert Item"),
-            tr("Input name for the new item:"));
-
-    if (newItemName.isNull()){
-        QMessageBox::critical(this, "Error", "You must enter a name for the new Item!");
-        return;
-    }
-
-    if(ui->lst_Items->findItems(newItemName, Qt::MatchExactly).size() > 0){
-        QMessageBox::critical(this, "Error", "Items should have unique names!");
-        return;
-    }
-
-    //Following Order does Matter
-    itemList.insert(itemList.begin(), std::pair<std::string, Item>(newItemName.toStdString(), Item(newItemName.toStdString())));
-    ui->lst_Items->addItem(newItemName);
-    ui->lst_Items->setCurrentItem(ui->lst_Items->findItems(newItemName, Qt::MatchExactly).front());
-
-    return;
-}
-
-void MainWindow::on_btn_Del_clicked()
-{
-    itemList.erase(ui->lst_Items->item(ui->lst_Items->currentRow())->text().toStdString());
-    ui->lst_Items->takeItem(ui->lst_Items->currentRow());
-
-    return;
-}
-
-void MainWindow::on_lst_Items_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)
-{
-    if(previous != nullptr){
-        auto it = itemList.find(previous->text().toStdString());
-
-        it->second.setName(ui->txt_Name->text().toStdString());
-        it->second.setDescription(ui->txt_Description->toPlainText().toStdString());
-        it->second.setComsumable(ui->chk_Comsumable->isChecked());
-        it->second.setHPVarient(ui->num_HPv->value());
-        it->second.setMPVarient(ui->num_MPv->value());
-        it->second.setATKVarient(ui->num_ATKv->value());
-        it->second.setDEFVarient(ui->num_DEFv->value());
-
-        if(ui->rad_null->isChecked())
-            it->second.setType(-1);
-        if(ui->rad_Potion->isChecked())
-            it->second.setType(0);
-        if(ui->rad_TPotion->isChecked())
-            it->second.setType(1);
-        if(ui->rad_Head->isChecked())
-            it->second.setType(2);
-        if(ui->rad_Armor->isChecked())
-            it->second.setType(3);
-        if(ui->Rad_Legs->isChecked())
-            it->second.setType(4);
-        if(ui->rad_Shoes->isChecked())
-            it->second.setType(5);
-        if(ui->rad_Weapon->isChecked())
-            it->second.setType(6);
-    }
-
-    if(current == nullptr){
-        ui->txt_Name->setText("");
-        ui->txt_Description->setPlainText("");
-        ui->chk_Comsumable->setChecked(false);
-        ui->num_HPv->setValue(0);
-        ui->num_MPv->setValue(0);
-        ui->num_ATKv->setValue(0);
-        ui->num_DEFv->setValue(0);
-        return;
-    }
-
-    auto it = itemList.find(current->text().toStdString());
-
-    if(it == itemList.end())
-        return;
-
-    ui->txt_Name->setText(QString::fromStdString(it->second.getName()));
-    ui->txt_Description->setPlainText(QString::fromStdString(it->second.getDescription()));
-    ui->chk_Comsumable->setChecked(it->second.isComsumable());
-    ui->num_HPv->setValue(it->second.getHPVarient());
-    ui->num_MPv->setValue(it->second.getMPVarient());
-    ui->num_ATKv->setValue(it->second.getATKVarient());
-    ui->num_DEFv->setValue(it->second.getDEFVarient());
-
-    ui->rad_null->setChecked(false);
-    ui->rad_Potion->setChecked(false);
-    ui->rad_TPotion->setChecked(false);
-    ui->rad_Head->setChecked(false);
-    ui->rad_Armor->setChecked(false);
-    ui->Rad_Legs->setChecked(false);
-    ui->rad_Shoes->setChecked(false);
-    ui->rad_Weapon->setChecked(false);
-
-    switch(it->second.getType()){
-        case -1:
-            ui->rad_null->setChecked(true);
-            break;
-        case 0:
-            ui->rad_Potion->setChecked(true);
-            break;
-        case 1:
-            ui->rad_TPotion->setChecked(true);
-            break;
-        case 2:
-            ui->rad_Head->setChecked(true);
-            break;
-        case 3:
-            ui->rad_Armor->setChecked(true);
-            break;
-        case 4:
-            ui->Rad_Legs->setChecked(true);
-            break;
-        case 5:
-            ui->rad_Shoes->setChecked(true);
-            break;
-        case 6:
-            ui->rad_Weapon->setChecked(true);
-            break;
-    }
-    return;
-}
-
-void MainWindow::on_txt_Description_textChanged()
-{
-
-}
-
-void MainWindow::on_btn_Save_clicked()
-{
-    ui->lst_Items->setCurrentRow(0);
-
     QString fileName = dataPath + "/data/items/itemlist.lst";
 
     Json::StyledWriter writer;
@@ -200,7 +90,7 @@ void MainWindow::on_btn_Save_clicked()
         Json::Value root2;
         root2["Name"] = it.second.getName();
         root2["Description"] = it.second.getDescription();
-        root2["Comsumable"] = it.second.isComsumable();
+        root2["Comsumable"] = (int)it.second.isComsumable();
         root2["Type"] = it.second.getType();
         root2["HPv"] = it.second.getHPVarient();
         root2["MPv"] = it.second.getMPVarient();
@@ -217,6 +107,62 @@ void MainWindow::on_btn_Save_clicked()
     std::ofstream file(fileName.toStdString());
     file << writer.write(root);
     file.close();
+
+    fileName = dataPath + "/data/skills/skilllist.lst";
+
+    root.clear();
+    root["Count"] = skillList.size();
+    i = 0;
+    for(auto it : skillList){
+        root["Skills"][i] = "data/skills/" + it.second.getName() + ".skl";
+
+        Json::Value root2;
+        root2["Name"] = it.second.getName();
+        root2["Description"] = it.second.getDescription();
+        root2["MPC"] = (int)it.second.getMPC();
+        root2["eTarget"] = it.second.geteTarget();
+        root2["eHPv"] = it.second.geteHPv();
+        root2["eMPv"] = it.second.geteMPv();
+        root2["eATKv"] = it.second.geteATKv();
+        root2["eDEFv"] = it.second.geteDEFv();
+        root2["fTarget"] = it.second.getfTarget();
+        root2["fHPv"] = it.second.getfHPv();
+        root2["fMPv"] = it.second.getfMPv();
+        root2["fATKv"] = it.second.getfATKv();
+        root2["fDEFv"] = it.second.getfDEFv();
+
+        std::ofstream file(dataPath.toStdString() + "/data/skills/" + it.second.getName() + ".skl");
+        file << writer.write(root2);
+        file.close();
+
+        i++;
+    }
+
+    std::ofstream file2(fileName.toStdString());
+    file2 << writer.write(root);
+    file2.close();
+
     return;
 }
 
+void MainWindow::on_actionItem_triggered()
+{
+    ui->mdiArea->removeSubWindow(iF);
+    delete iF;
+
+    iF = new itemForm(itemList);
+    QMdiSubWindow* sub = ui->mdiArea->addSubWindow(iF);
+    sub->show();
+    iF->update();
+}
+
+void MainWindow::on_actionSkills_triggered()
+{
+    ui->mdiArea->removeSubWindow(sF);
+    delete sF;
+
+    sF = new skillForm(skillList);
+    QMdiSubWindow* sub = ui->mdiArea->addSubWindow(sF);
+    sub->show();
+    sF->update();
+}
