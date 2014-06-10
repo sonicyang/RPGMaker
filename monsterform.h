@@ -17,7 +17,7 @@ public:
     explicit monsterForm(std::map<std::string, Monster>& m, std::map<std::string, Skill>& s, QWidget *parent = 0);
     ~monsterForm();
 
-    void update();
+    void updateData();
 
 private slots:
     void on_lst_Monsters_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);

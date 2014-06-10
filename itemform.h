@@ -19,7 +19,7 @@ public:
     explicit itemForm(std::map<std::string, Item>& i, QWidget *parent = 0);
     ~itemForm();
 
-    void update();
+    void updateData();
 
 private slots:
     void on_btn_Add_clicked();

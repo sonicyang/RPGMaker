@@ -12,6 +12,7 @@ monsterForm::monsterForm(std::map<std::string, Monster>& m, std::map<std::string
     skillList(s)
 {
     ui->setupUi(this);
+    updateData();
 }
 
 monsterForm::~monsterForm()
@@ -19,7 +20,7 @@ monsterForm::~monsterForm()
     delete ui;
 }
 
-void monsterForm::update(){
+void monsterForm::updateData(){
     for(auto it : monsterList){
         if(ui->lst_Monsters->findItems(QString::fromStdString(it.first), Qt::MatchFixedString).size() == 0)
             ui->lst_Monsters->addItem(QString::fromStdString(it.first));

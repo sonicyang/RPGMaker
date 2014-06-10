@@ -10,37 +10,44 @@ class Role
 {
     public:
         Role();
-        Role(std::string, int, int, int, int, int, int, int, int, std::map<int, Skill>);
-        Role(std::string, int, int, int, int, int, int, int, int, std::map<int, Skill>, int);
+        Role(std::string);
         virtual ~Role();
 
-        int getMaxHP(void) const { return max_hp; };
-        int getMaxMP(void) const { return max_mp; };
-        int getLevelUpExp(void) const { return lvup_exp; };
-        int getAttack(void) const { return attack; };
-        int getDefense(void) const { return defense; };
+        int getHPc(void) const { return _hp_base; }
+        int getHPx(void) const { return _hp_mpx; }
+        int getMPc(void) const { return _mp_base; }
+        int getMPx(void) const { return _mp_mpx; }
+        int getATKc(void) const { return _attack_base; }
+        int getATKx(void) const { return _attack_mpx; }
+        int getDEFc(void) const { return _defense_base; }
+        int getDEFx(void) const { return _defense_mpx; }
 
-        void setLevel(int);
+        void setHPc(int val) { _hp_base = val; }
+        void setHPx(int val) { _hp_mpx = val; }
+        void setMPc(int val) { _mp_base = val; }
+        void setMPx(int val) { _mp_mpx = val; }
+        void setATKc(int val) { _attack_base = val; }
+        void setATKx(int val) { _attack_mpx = val; }
+        void setDEFc(int val) { _defense_base = val; }
+        void setDEFx(int val) { _defense_mpx = val; }
 
-        std::string getName() { return _name; };
+        void setName(std::string val) { _name = val; }
+        std::string getName() { return _name; }
 
-        std::vector<Skill> getSkillList() { return _skills; };
+        std::map<int, Skill>& getSkillList() { return _skillsCache; }
     protected:
     private:
         std::string _name;
 
-        int max_hp; // stores max. HP of the player
-        int max_mp;  // stores max. MP of the player
-        int lvup_exp; // stores needed experience to level-up
-        int attack; // stores attack of the player
-        int defense; // stores defense of the player
+        int _hp_base = 0;
+        int _hp_mpx = 0;
+        int _mp_base = 0;
+        int _mp_mpx = 0;
+        int _attack_base = 0;
+        int _attack_mpx = 0;
+        int _defense_base = 0;
+        int _defense_mpx = 0;
 
-        int _hp_base, _hp_mpx;
-        int _mp_base, _mp_mpx;
-        int _attack_base, _attack_mpx;
-        int _defense_base, _defense_mpx;
-
-        std::vector<Skill> _skills;
         std::map<int, Skill> _skillsCache;
 };
 

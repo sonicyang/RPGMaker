@@ -9,6 +9,8 @@
 #include "skillform.h"
 #include "monster.h"
 #include "monsterform.h"
+#include "role.h"
+#include "roleform.h"
 
 namespace Ui {
 class MainWindow;
@@ -32,6 +34,8 @@ private slots:
 
     void on_actionMonster_triggered();
 
+    void on_actionRole_triggered();
+
 private:
     Ui::MainWindow *ui;
 
@@ -40,10 +44,12 @@ private:
     std::map<std::string, Item> itemList;
     std::map<std::string, Skill> skillList;
     std::map<std::string, Monster> monsterList;
+    std::map<std::string, Role> roleList;
 
     itemForm* iF = nullptr;
     skillForm* sF = nullptr;
     monsterForm* mF = nullptr;
+    roleForm* rF = nullptr;
 };
 
 #endif // MAINWINDOW_H

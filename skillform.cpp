@@ -17,7 +17,7 @@ skillForm::~skillForm()
     delete ui;
 }
 
-void skillForm::update(){
+void skillForm::updateData(){
     for(auto it : skillList){
         if(ui->lst_Skills->findItems(QString::fromStdString(it.first), Qt::MatchFixedString).size() == 0)
             ui->lst_Skills->addItem(QString::fromStdString(it.first));

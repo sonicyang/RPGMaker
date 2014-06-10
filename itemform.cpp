@@ -10,7 +10,6 @@ itemForm::itemForm(std::map<std::string, Item>& i, QWidget *parent) :
     itemList(i)
 {
     ui->setupUi(this);
-    update();
 }
 
 itemForm::~itemForm()
@@ -18,7 +17,7 @@ itemForm::~itemForm()
     delete ui;
 }
 
-void itemForm::update(){
+void itemForm::updateData(){
     for(auto it : itemList){
         if(ui->lst_Items->findItems(QString::fromStdString(it.first), Qt::MatchFixedString).size() == 0)
             ui->lst_Items->addItem(QString::fromStdString(it.first));

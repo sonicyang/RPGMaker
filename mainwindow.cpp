@@ -84,8 +84,29 @@ MainWindow::MainWindow(QWidget *parent) :
         monsterList[root2["Name"].asString()].setAttack(root2["ATK"].asInt());
         monsterList[root2["Name"].asString()].setDefense(root2["DEF"].asInt());
         monsterList[root2["Name"].asString()].setImg(root2["Image"].asString());
-        for(int k = 0; k < root2["Skills"].size(); k++){
+        for(unsigned int k = 0; k < root2["Skills"].size(); k++){
             monsterList[root2["Name"].asString()].getSkillList().emplace_back(skillList[root2["Skills"][k].asString()]);
+        }
+    }
+
+    fileName = dataPath + "/data/roles/rolelist.lst";
+    root.clear();
+    read.parse(get_file_contents(fileName.toStdString().c_str()), root);
+
+    for(int i = 0; i < root["Count"].asInt(); i++){
+        Json::Value root2;
+        read.parse(get_file_contents((dataPath.toStdString() + "/" + root["Path"][i].asString()).c_str()), root2);
+        roleList.insert(roleList.begin(), std::pair<std::string, Role>(root2["Name"].asString(), Role(root2["Name"].asString())));
+        roleList[root2["Name"].asString()].setHPc(root2["HP"][(unsigned int)0].asInt());
+        roleList[root2["Name"].asString()].setMPc(root2["MP"][(unsigned int)0].asInt());
+        roleList[root2["Name"].asString()].setATKc(root2["ATK"][(unsigned int)0].asInt());
+        roleList[root2["Name"].asString()].setDEFc(root2["DEF"][(unsigned int)0].asInt());
+        roleList[root2["Name"].asString()].setHPx(root2["HP"][1].asInt());
+        roleList[root2["Name"].asString()].setMPx(root2["MP"][1].asInt());
+        roleList[root2["Name"].asString()].setATKx(root2["ATK"][1].asInt());
+        roleList[root2["Name"].asString()].setDEFx(root2["DEF"][1].asInt());
+        for(unsigned int k = 0; k < root2["Skills"].size(); k++){
+            roleList[root2["Name"].asString()].getSkillList().emplace(root2["Skills"][k]["Level"].asInt(), skillList[root2["Skills"][k]["Name"].asString()]);
         }
     }
 }
@@ -195,6 +216,44 @@ void MainWindow::on_actionSave_triggered()
     file3 << writer.write(root);
     file3.close();
 
+    fileName = dataPath + "/data/roles/rolelist.lst";
+
+    root.clear();
+    root["Count"] = roleList.size();
+    i = 0;
+    for(auto it : roleList){
+        root["Path"][i] = "data/roles/" + it.second.getName() + ".rol";
+
+        Json::Value root2;
+        root2["Name"] = it.second.getName();
+        root2["HP"][(unsigned int)0] = it.second.getHPc();
+        root2["MP"][(unsigned int)0] = it.second.getMPc();
+        root2["ATK"][(unsigned int)0] = it.second.getATKc();
+        root2["DEF"][(unsigned int)0] = it.second.getDEFc();
+        root2["HP"][1] = it.second.getHPx();
+        root2["MP"][1] = it.second.getMPx();
+        root2["ATK"][1] = it.second.getATKx();
+        root2["DEF"][1] = it.second.getDEFx();
+
+        int k = 0;
+        for(auto sit : it.second.getSkillList()){
+            root2["Skills"][k]["Level"] = sit.first;
+            root2["Skills"][k]["Name"] = sit.second.getName();
+            k++;
+        }
+
+        std::ofstream file(dataPath.toStdString() + "/data/roles/" + it.second.getName() + ".rol");
+        file << writer.write(root2);
+        file.close();
+
+        i++;
+    }
+
+    std::ofstream file4(fileName.toStdString());
+    file4 << writer.write(root);
+    file4.close();
+
+
     return;
 }
 
@@ -206,7 +265,7 @@ void MainWindow::on_actionItem_triggered()
     iF = new itemForm(itemList);
     QMdiSubWindow* sub = ui->mdiArea->addSubWindow(iF);
     sub->show();
-    iF->update();
+    iF->updateData();
 }
 
 void MainWindow::on_actionSkills_triggered()
@@ -217,7 +276,7 @@ void MainWindow::on_actionSkills_triggered()
     sF = new skillForm(skillList);
     QMdiSubWindow* sub = ui->mdiArea->addSubWindow(sF);
     sub->show();
-    sF->update();
+    sF->updateData();
 }
 
 void MainWindow::on_actionMonster_triggered()
@@ -228,5 +287,16 @@ void MainWindow::on_actionMonster_triggered()
     mF = new monsterForm(monsterList, skillList);
     QMdiSubWindow* sub = ui->mdiArea->addSubWindow(mF);
     sub->show();
-    mF->update();
+    mF->updateData();
+}
+
+void MainWindow::on_actionRole_triggered()
+{
+    ui->mdiArea->removeSubWindow(rF);
+    delete rF;
+
+    rF = new roleForm(roleList, skillList);
+    QMdiSubWindow* sub = ui->mdiArea->addSubWindow(rF);
+    sub->show();
+    rF->updateData();
 }

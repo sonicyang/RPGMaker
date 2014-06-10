@@ -17,7 +17,7 @@ public:
     explicit skillForm(std::map<std::string, Skill>& s, QWidget *parent = 0);
     ~skillForm();
 
-    void update();
+    void updateData();
 
 private slots:
 
