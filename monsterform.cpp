@@ -5,10 +5,11 @@
 #include "monsterform.h"
 #include "ui_monsterform.h"
 
-monsterForm::monsterForm(std::map<std::string, Monster>& m,QWidget *parent) :
+monsterForm::monsterForm(std::map<std::string, Monster>& m, std::map<std::string, Skill>& s, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::monsterForm),
-    monsterList(m)
+    monsterList(m),
+    skillList(s)
 {
     ui->setupUi(this);
 }
@@ -38,6 +39,7 @@ void monsterForm::on_lst_Monsters_currentItemChanged(QListWidgetItem *current, Q
         it->second.setAttack(ui->num_ATK->value());
         it->second.setDefense(ui->num_DEF->value());
         it->second.setImg(ui->txt_IMG->text().toStdString());
+
     }
 
     if(current == nullptr){
@@ -48,6 +50,7 @@ void monsterForm::on_lst_Monsters_currentItemChanged(QListWidgetItem *current, Q
         ui->num_EXP->setValue(0);
         ui->num_ATK->setValue(0);
         ui->num_DEF->setValue(0);
+        ui->lst_Mskills->clear();
         return;
     }
 
@@ -63,6 +66,11 @@ void monsterForm::on_lst_Monsters_currentItemChanged(QListWidgetItem *current, Q
     ui->num_MP->setValue(it->second.getMP());
     ui->num_ATK->setValue(it->second.getAttack());
     ui->num_DEF->setValue(it->second.getDefense());
+
+    ui->lst_Mskills->clear();
+    for(auto sit : it->second.getSkillList()){
+        ui->lst_Mskills->addItem(QString::fromStdString(sit.getName()));
+    }
 
     return;
 }
@@ -105,3 +113,35 @@ void monsterForm::on_btn_Del_clicked()
 }
 
 
+
+void monsterForm::on_btn_addSkill_clicked()
+{
+    QString sName = QInputDialog::getText(this, tr("Insert Skill"),
+            tr("Input name of the Skill:"));
+
+    if (sName.isNull()){
+        QMessageBox::critical(this, "Error", "You must enter a name of Skill!");
+        return;
+    }
+
+    if(skillList.find(sName.toStdString()) == skillList.end()){
+        QMessageBox::critical(this, "Error", "No Such Skill");
+        return;
+    }
+
+    monsterList[ui->lst_Monsters->currentItem()->text().toStdString()].getSkillList().emplace_back(skillList[sName.toStdString()]);
+
+    ui->lst_Mskills->addItem(sName);
+
+    return;
+}
+
+void monsterForm::on_btn_rmSkill_clicked()
+{
+    monsterList[ui->lst_Monsters->currentItem()->text().toStdString()].getSkillList().erase(
+                monsterList[ui->lst_Monsters->currentItem()->text().toStdString()].getSkillList().begin() +
+                ui->lst_Mskills->currentRow());
+    ui->lst_Mskills->takeItem(ui->lst_Mskills->currentRow());
+
+    return;
+}

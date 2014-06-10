@@ -84,6 +84,9 @@ MainWindow::MainWindow(QWidget *parent) :
         monsterList[root2["Name"].asString()].setAttack(root2["ATK"].asInt());
         monsterList[root2["Name"].asString()].setDefense(root2["DEF"].asInt());
         monsterList[root2["Name"].asString()].setImg(root2["Image"].asString());
+        for(int k = 0; k < root2["Skills"].size(); k++){
+            monsterList[root2["Name"].asString()].getSkillList().emplace_back(skillList[root2["Skills"][k].asString()]);
+        }
     }
 }
 
@@ -175,6 +178,12 @@ void MainWindow::on_actionSave_triggered()
         root2["DEF"] = it.second.getDefense();
         root2["Image"] = it.second.getImg();
 
+        int k = 0;
+        for(auto sit : it.second.getSkillList()){
+            root2["Skills"][k] = sit.getName();
+            k++;
+        }
+
         std::ofstream file(dataPath.toStdString() + "/data/monsters/" + it.second.getName() + ".mst");
         file << writer.write(root2);
         file.close();
@@ -216,7 +225,7 @@ void MainWindow::on_actionMonster_triggered()
     ui->mdiArea->removeSubWindow(mF);
     delete mF;
 
-    mF = new monsterForm(monsterList);
+    mF = new monsterForm(monsterList, skillList);
     QMdiSubWindow* sub = ui->mdiArea->addSubWindow(mF);
     sub->show();
     mF->update();

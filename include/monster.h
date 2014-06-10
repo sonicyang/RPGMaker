@@ -29,7 +29,7 @@ class Monster
         int getDefense(void);
         void setDefense(int val) { defense = val; }
 
-        std::vector<Skill> getSkillList() { return _skills; }
+        std::vector<Skill>& getSkillList() { return _skills; }
 
         std::string getImg() { return _img; }
         void setImg(std::string val) { _img = val; }
